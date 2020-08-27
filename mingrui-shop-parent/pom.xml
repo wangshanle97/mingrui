@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.baidu</groupId>
-    <artifactId>mnigrui-shop-parent</artifactId>
+    <artifactId>mingrui-shop-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>mingrui-shop-basics</module>
+        <module>mingrui-shop-commoms</module>
         <module>mingrui-shop-service</module>
         <module>mingrui-shop-service-api</module>
-        <module>mingrui-shop-commoms</module>
     </modules>
 
     <!--父级项目不需要打包所有packging的类型为pom-->
@@ -101,4 +101,5 @@
             </snapshots>
         </repository>
     </repositories>
+
 </project>
