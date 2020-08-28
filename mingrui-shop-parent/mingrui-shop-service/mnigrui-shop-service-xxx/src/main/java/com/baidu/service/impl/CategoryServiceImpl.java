@@ -9,7 +9,9 @@ import com.baidu.shop.status.HTTPStatus;
 import com.baidu.shop.utils.ObjectUtil;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
+import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
 
@@ -26,6 +28,8 @@ public class CategoryServiceImpl extends BaseApiService implements CategoryServi
     @Autowired
     private CategoryMapper categoryMapper;
 
+    //查询方法
+    @Transactional
     @Override
     public Result<List<CategoryEntity>> getCategoryByPid(Integer pid) {
 
@@ -38,59 +42,64 @@ public class CategoryServiceImpl extends BaseApiService implements CategoryServi
         return this.setResultSuccess(list);
     }
 
+    //删除放法
+    @Transactional
     @Override
     public Result<JsonObject> delcategory(Integer id) {
         //通过id查询当前节点是否为父级节点
         //通过当前id查询当前节点的父节点id
         CategoryEntity categoryEntity = categoryMapper.selectByPrimaryKey(id);
-        if(ObjectUtil.inNull(categoryEntity)){
-            return this.setResultError(HTTPStatus.OPERATION_ERROR,"当前id不存在");
+        if (categoryEntity.getId() == null) {
+            return this.setResultError("当前节点不存在");
         }
-        if(categoryEntity.getIsParent() ==1 ){
-            return this.setResultError(HTTPStatus.OPERATION_ERROR,"当前节点为父节点");
+
+        if (categoryEntity.getIsParent() == 1) {
+            return this.setResultError("当前节点是父级节点,不能被删除");
         }
+
         //查看是否还有节点的父节点是当前节点的父节点id
-        Result<List<CategoryEntity>> result = this.getCategoryByPid(categoryEntity.getParentId());
 
-        if(result.getCode() == HTTPStatus.OK){
-            List<CategoryEntity> data = result.getData();
+        Example example = new Example(CategoryEntity.class);
+        example.createCriteria().andEqualTo("parentId",categoryEntity.getParentId());
+        List<CategoryEntity> list = categoryMapper.selectByExample(example);
 
-            if(data.size() == 1){//如果没有的话删除成功后需要将父节点的isParent修改为0
-                CategoryEntity editEntity = new CategoryEntity();
+        if (list.size() ==1) {
+            CategoryEntity editEntity = new CategoryEntity();
 
-                editEntity.setId(categoryEntity.getParentId());
-                editEntity.setParentId(0);
-
-                categoryMapper.updateByPrimaryKeySelective(editEntity);
-            }
+            editEntity.setId(categoryEntity.getParentId());
+            editEntity.setIsParent(0);
+            categoryMapper.updateByPrimaryKeySelective(editEntity);
         }
+        categoryMapper.deleteByPrimaryKey(id);
 
-
-        try {
-            categoryMapper.deleteByPrimaryKey(id);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         return this.setResultSuccess();
     }
 
+    //修改方法
+    @Transactional
     @Override
     public Result<JsonObject> editCategory(CategoryEntity entity) {
-        try {
+
             categoryMapper.updateByPrimaryKeySelective(entity);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
         return this.setResultSuccess();
     }
 
+    //新增方法
+    @Transactional
     @Override
     public Result<JsonObject> addCategory(CategoryEntity entity) {
-        try {
-            categoryMapper.insertSelective(entity);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+
+
+
+        CategoryEntity entity1 = new CategoryEntity();
+        entity1.setId(entity.getParentId());
+        entity1.setIsParent(1);
+        categoryMapper.updateByPrimaryKeySelective(entity1);
+
+        categoryMapper.insertSelective(entity);
+
         return this.setResultSuccess();
     }
 }
