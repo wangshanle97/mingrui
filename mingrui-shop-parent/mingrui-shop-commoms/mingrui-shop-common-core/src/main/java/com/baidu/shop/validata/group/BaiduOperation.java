@@ -12,4 +12,5 @@ public class BaiduOperation {
     public interface Add{}
 
     public interface Update{}
+
 }

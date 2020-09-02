@@ -26,8 +26,9 @@ import java.util.List;
 public class GolbalException {
 
     @ExceptionHandler(RuntimeException.class)
-    public Result<JSONObject> test(HttpServletRequest req,Exception e){
-        Result<JSONObject> result = new Result<>();
+    public Result<JSONObject> test(HttpServletRequest req, Exception e){
+
+        Result<JSONObject> result = new Result();
         result.setCode(HTTPStatus.ERROR);
         result.setMessage(e.getMessage());
 
@@ -36,22 +37,24 @@ public class GolbalException {
         return result;
     }
 
-    @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    public List<Result<JsonObject>> MethodArgumentNotValidException(HttpServletRequest request, MethodArgumentNotValidException exception)
-        throws Exception
+    @ExceptionHandler(value= MethodArgumentNotValidException.class)
+    public List<Result<JsonObject>> MethodArgumentNotValidHandler(HttpServletRequest request,
+                                                                  MethodArgumentNotValidException exception) throws Exception
     {
         List<Result<JsonObject>> objects = new ArrayList<>();
-        for( FieldError error : exception.getBindingResult().getFieldErrors()){
+
+        for (FieldError error : exception.getBindingResult().getFieldErrors()) {
+
             Result<JsonObject> jsonObjectResult = new Result<>();
 
-            jsonObjectResult.setCode((HTTPStatus.PARAMS_VALIDATE_ERROR));
+            jsonObjectResult.setCode(HTTPStatus.PARAMS_VALIDATE_ERROR);
 
-            jsonObjectResult.setMessage("Field-->"+ error.getField() + ":" + error.getDefaultMessage());
+            jsonObjectResult.setMessage("Field --> " + error.getField() + " : " + error.getDefaultMessage());
 
-            log.debug("field -->" +error.getField() + ":" + error.getDefaultMessage());
-
+            log.debug("Field --> " + error.getField() + " : " + error.getDefaultMessage());
             objects.add(jsonObjectResult);
         }
+
         return objects;
     }
 }

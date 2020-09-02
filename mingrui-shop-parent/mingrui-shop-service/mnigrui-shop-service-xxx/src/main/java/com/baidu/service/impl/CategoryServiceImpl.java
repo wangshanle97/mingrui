@@ -5,8 +5,6 @@ import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
 import com.baidu.shop.entity.CategoryEntity;
 import com.baidu.shop.service.CategoryService;
-import com.baidu.shop.status.HTTPStatus;
-import com.baidu.shop.utils.ObjectUtil;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +52,7 @@ public class CategoryServiceImpl extends BaseApiService implements CategoryServi
         }
 
         if (categoryEntity.getIsParent() == 1) {
-            return this.setResultError("当前节点是父级节点,不能被删除");
+            return this.setResultError("当前节点 ---是父级节点,不能被删除");
         }
 
         //查看是否还有节点的父节点是当前节点的父节点id
@@ -101,5 +99,11 @@ public class CategoryServiceImpl extends BaseApiService implements CategoryServi
         categoryMapper.insertSelective(entity);
 
         return this.setResultSuccess();
+    }
+
+    @Override
+    public Result<List<CategoryEntity>> getByBrand(Integer brandId) {
+        List<CategoryEntity> list = categoryMapper.getByBrandId(brandId);
+        return setResultSuccess(list);
     }
 }

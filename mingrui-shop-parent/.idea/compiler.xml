@@ -8,9 +8,10 @@
         <outputRelativeToContentRoot value="true" />
         <module name="mingrui-shop-common-core" />
         <module name="mingrui-shop-basics-zuul-server" />
-        <module name="mingrui-shop-service-api-xxx" />
-        <module name="mnigrui-shop-service-xxx" />
+        <module name="mnigrui-shop-basic-upload-server" />
         <module name="mingrui-shop-basics-eureka-server" />
+        <module name="mnigrui-shop-service-xxx" />
+        <module name="mingrui-shop-service-api-xxx" />
       </profile>
     </annotationProcessing>
   </component>
@@ -24,6 +25,7 @@
       <module name="mingrui-shop-service" options="-parameters" />
       <module name="mingrui-shop-service-api" options="-parameters" />
       <module name="mingrui-shop-service-api-xxx" options="-parameters" />
+      <module name="mnigrui-shop-basic-upload-server" options="-parameters" />
       <module name="mnigrui-shop-service-xxx" options="-parameters" />
     </option>
   </component>
