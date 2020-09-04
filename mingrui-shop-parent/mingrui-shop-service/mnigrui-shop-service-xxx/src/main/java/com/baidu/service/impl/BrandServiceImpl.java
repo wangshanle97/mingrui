@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * @Version V1.0
  **/
 @RestController
-public class BrandServiceImpl extends BaseApiService implements BrandService{
+public class BrandServiceImpl extends BaseApiService implements BrandService {
 
     @Resource
     private BrandMapper brandMapper;
@@ -43,13 +43,14 @@ public class BrandServiceImpl extends BaseApiService implements BrandService{
     @Override
     public Result<PageInfo<BrandEntity>> getBrandInfo(BrandDTO brandDTO) {
 
-        PageHelper.startPage(brandDTO.getPage(),brandDTO.getRows());
+        PageHelper.startPage(brandDTO.getPage(), brandDTO.getRows());
 
         Example example = new Example(BrandEntity.class);
 
-        if (ObjectUtil.isNotNull(brandDTO.getSort()))example.setOrderByClause(brandDTO.getOrderByClause());
+        if (ObjectUtil.isNotNull(brandDTO.getSort())) example.setOrderByClause(brandDTO.getOrderByClause());
 
-        if (ObjectUtil.isNotNull(brandDTO.getName())) example.createCriteria().andLike("name","%"+brandDTO.getName()+"%");
+        if (ObjectUtil.isNotNull(brandDTO.getName()))
+            example.createCriteria().andLike("name", "%" + brandDTO.getName() + "%");
 
 
         List<BrandEntity> list = brandMapper.selectByExample(example);
@@ -69,7 +70,7 @@ public class BrandServiceImpl extends BaseApiService implements BrandService{
 
         brandMapper.insertSelective(brandEntity);
 
-        this.saveOrEdit(brandDTO,brandEntity);
+        this.saveOrEdit(brandDTO, brandEntity);
         return setResultSuccess();
     }
 
@@ -85,13 +86,13 @@ public class BrandServiceImpl extends BaseApiService implements BrandService{
 
         this.deleteById(brandEntity.getId());
 
-        this.saveOrEdit(brandDTO,brandEntity);
+        this.saveOrEdit(brandDTO, brandEntity);
         return setResultSuccess();
     }
 
 
-    private void saveOrEdit(BrandDTO brandDTO,BrandEntity brandEntity){
-        if(brandDTO.getCategory().contains(",")){
+    private void saveOrEdit(BrandDTO brandDTO, BrandEntity brandEntity) {
+        if (brandDTO.getCategory().contains(",")) {
             /*String[] split = brandDTO.getCategory().split(",");
 
             List<String> stringList = Arrays.asList(split);
@@ -113,7 +114,7 @@ public class BrandServiceImpl extends BaseApiService implements BrandService{
                 return categoryBrandEntity;
             }).collect(Collectors.toList());
             categoryBrandMapper.insertList(collect);
-        }else{
+        } else {
             CategoryBrandEntity categoryBrandEntity = new CategoryBrandEntity();
             categoryBrandEntity.setBrandId(brandEntity.getId());
             categoryBrandEntity.setCategoryId(StringUtil.toInteger(brandDTO.getCategory()));
@@ -125,6 +126,7 @@ public class BrandServiceImpl extends BaseApiService implements BrandService{
     @Override
     public Result<JsonObject> removeBrand(Integer id) {
 
+
         this.deleteById(id);
 
         brandMapper.deleteByPrimaryKey(id);
@@ -132,9 +134,9 @@ public class BrandServiceImpl extends BaseApiService implements BrandService{
 
     }
 
-    private void deleteById(Integer id){
+    private void deleteById(Integer id) {
         Example example = new Example(CategoryBrandEntity.class);
-        example.createCriteria().andEqualTo("brandId",id);
+        example.createCriteria().andEqualTo("brandId", id);
         categoryBrandMapper.deleteByExample(example);
     }
 }
