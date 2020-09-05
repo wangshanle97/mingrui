@@ -14,6 +14,7 @@ import com.baidu.shop.service.SpecGroupService;
 import com.baidu.shop.utils.BaiduBeanUtil;
 import com.baidu.shop.utils.ObjectUtil;
 import com.google.gson.JsonObject;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import tk.mybatis.mapper.entity.Example;
 
@@ -36,6 +37,8 @@ public class SpecGroupServiceImpl extends BaseApiService implements SpecGroupSer
     @Resource
     private SpecParamMapper specParamMapper;
 
+    //查询规格组
+    @Transactional
     @Override
     public Result<List<SpecGroupEntity>> query(SpecGroupDTO specGroupDTO) {
 
@@ -46,6 +49,9 @@ public class SpecGroupServiceImpl extends BaseApiService implements SpecGroupSer
         return this.setResultSuccess(specGroupEntities);
     }
 
+
+    //新增规格组
+    @Transactional
     @Override
     public Result<JsonObject> save(SpecGroupDTO specGroupDTO) {
 
@@ -53,6 +59,8 @@ public class SpecGroupServiceImpl extends BaseApiService implements SpecGroupSer
         return this.setResultSuccess();
     }
 
+    //修改规格组
+    @Transactional
     @Override
     public Result<JsonObject> edit(SpecGroupDTO specGroupDTO) {
         specGroupMapper.updateByPrimaryKeySelective(BaiduBeanUtil.copyProperties(specGroupDTO,SpecGroupEntity.class));
@@ -60,14 +68,15 @@ public class SpecGroupServiceImpl extends BaseApiService implements SpecGroupSer
         return this.setResultSuccess();
     }
 
+    //删除规格组
+    @Transactional
     @Override
     public Result<JsonObject> remove(Integer id) {
-        SpecParamEntity specParamEntity = new SpecParamEntity();
-        specParamEntity.setGroupId(id);
+        //查询规格组是否有参数
         Example example1 = new Example(SpecParamEntity.class);
-
-        example1.createCriteria().andEqualTo("groupId",specParamEntity.getGroupId());
+        example1.createCriteria().andEqualTo("groupId",id);
         List<SpecParamEntity> list = specParamMapper.selectByExample(example1);
+
         if(list.size() >= 1) {
             return this.setResultError("当前规格不能被删除,里面有内容");
         }else{
@@ -76,6 +85,8 @@ public class SpecGroupServiceImpl extends BaseApiService implements SpecGroupSer
         return this.setResultSuccess();
     }
 
+    //查询规格组参数
+    @Transactional
     @Override
     public Result<List<SpecParamEntity>> getSpecParamInfo(SpecParamDTO specParamDTO) {
 
@@ -91,18 +102,25 @@ public class SpecGroupServiceImpl extends BaseApiService implements SpecGroupSer
         return this.setResultSuccess(list);
     }
 
+
+    //新增规格参数
+    @Transactional
     @Override
     public Result<JsonObject> saveSpaecParam(SpecParamDTO specParamDTO) {
         specParamMapper.insertSelective(BaiduBeanUtil.copyProperties(specParamDTO,SpecParamEntity.class));
         return this.setResultSuccess();
     }
 
+    //修改规格参数
+    @Transactional
     @Override
     public Result<JsonObject> editSpecParam(SpecParamDTO specParamDTO) {
         specParamMapper.updateByPrimaryKeySelective(BaiduBeanUtil.copyProperties(specParamDTO,SpecParamEntity.class));
         return this.setResultSuccess();
     }
 
+    //删除规格参数
+    @Transactional
     @Override
     public Result<JsonObject> removeSpecParam(Integer id) {
 

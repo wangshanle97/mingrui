@@ -15,6 +15,7 @@ import com.baidu.shop.utils.StringUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.JsonObject;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import tk.mybatis.mapper.entity.Example;
 
@@ -40,6 +41,8 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
     @Resource
     private CategoryBrandMapper categoryBrandMapper;
 
+    //查询品牌信息
+    @Transactional
     @Override
     public Result<PageInfo<BrandEntity>> getBrandInfo(BrandDTO brandDTO) {
 
@@ -60,6 +63,8 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
         return this.setResultSuccess(pageInfo);
     }
 
+    //新增品牌信息
+    @Transactional
     @Override
     public Result<JsonObject> saveBrand(BrandDTO brandDTO) {
 
@@ -74,6 +79,8 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
         return setResultSuccess();
     }
 
+    //修改品牌信息
+    @Transactional
     @Override
     public Result<JsonObject> editBrand(BrandDTO brandDTO) {
         BrandEntity brandEntity = BaiduBeanUtil.copyProperties(brandDTO, BrandEntity.class);
@@ -91,6 +98,7 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
     }
 
 
+    //新增和修改调用的封装方法
     private void saveOrEdit(BrandDTO brandDTO, BrandEntity brandEntity) {
         if (brandDTO.getCategory().contains(",")) {
             /*String[] split = brandDTO.getCategory().split(",");
@@ -123,6 +131,7 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
         }
     }
 
+    //删除
     @Override
     public Result<JsonObject> removeBrand(Integer id) {
 
