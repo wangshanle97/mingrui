@@ -24,7 +24,7 @@ public class BaseDTO {
     @ApiModelProperty(value = "当前页",example = "1")
     private Integer page;
 
-    @ApiModelProperty(value = "每页显示多少天",example = "5")
+    @ApiModelProperty(value = "每页显示多少条",example = "5")
     private Integer rows;
 
     @ApiModelProperty(value = "排序字段")

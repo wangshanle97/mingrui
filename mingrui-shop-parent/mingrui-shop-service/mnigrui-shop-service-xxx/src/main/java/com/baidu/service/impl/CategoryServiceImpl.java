@@ -69,7 +69,6 @@ public class CategoryServiceImpl extends BaseApiService implements CategoryServi
         //查看当前节点是否是父级节点
         if (categoryEntity.getIsParent() == 1) return this.setResultError("当前节点 ---是父级节点,不能被删除");
 
-
         //查询是否被品牌绑定
         Example example1 = new Example(CategoryBrandEntity.class);
         example1.createCriteria().andEqualTo("categoryId",id);
@@ -83,7 +82,6 @@ public class CategoryServiceImpl extends BaseApiService implements CategoryServi
         List<SpecGroupEntity> specGroupEntities = specGroupMapper.selectByExample(example2);
 
         if (specGroupEntities.size() >= 1) return this.setResultError("被规格组绑定无法删除");
-
 
         //查询当前节点下是否有子级节点
         Example example = new Example(CategoryEntity.class);

@@ -43,6 +43,8 @@ public class SpecGroupServiceImpl extends BaseApiService implements SpecGroupSer
     public Result<List<SpecGroupEntity>> query(SpecGroupDTO specGroupDTO) {
 
         Example example = new Example(SpecGroupEntity.class);
+
+
         if (ObjectUtil.isNotNull(specGroupDTO.getCid())) example.createCriteria().andEqualTo("cid",specGroupDTO.getCid());
 
         List<SpecGroupEntity> specGroupEntities = specGroupMapper.selectByExample(example);
@@ -92,10 +94,12 @@ public class SpecGroupServiceImpl extends BaseApiService implements SpecGroupSer
 
         //if(ObjectUtil.isNull(specParamDTO.getGroupId())) return this.setResultError("规格组id不能为空");
 
-        if(ObjectUtil.isNull(specParamDTO.getGroupId())) throw new BaiduException("规格组id不能为空");
-
         Example example = new Example(SpecParamEntity.class);
-        example.createCriteria().andEqualTo("groupId",specParamDTO.getGroupId());
+        Example.Criteria criteria = example.createCriteria();
+        if(ObjectUtil.isNotNull(specParamDTO.getGroupId())) criteria.andEqualTo("groupId",specParamDTO.getGroupId());
+
+        if(ObjectUtil.isNotNull(specParamDTO.getCid())) criteria.andEqualTo("cid",specParamDTO.getCid());
+
 
         List<SpecParamEntity> list = specParamMapper.selectByExample(example);
 

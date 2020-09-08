@@ -41,6 +41,8 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
     @Resource
     private CategoryBrandMapper categoryBrandMapper;
 
+
+
     //查询品牌信息
     @Transactional
     @Override
@@ -141,6 +143,12 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
         brandMapper.deleteByPrimaryKey(id);
         return setResultSuccess();
 
+    }
+
+    @Override
+    public Result<List<BrandEntity>> getBrandByCate(Integer cid) {
+        List<BrandEntity> list = brandMapper.getBrandByCateId(cid);
+        return this.setResultSuccess(list);
     }
 
     private void deleteById(Integer id) {
