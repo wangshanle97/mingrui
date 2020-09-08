@@ -62,7 +62,6 @@ public class CategoryServiceImpl extends BaseApiService implements CategoryServi
     @Override
     public Result<JsonObject> delcategory(Integer id) {
         //通过id查询当前节点是否为父级节点
-        //通过当前id查询当前节点的父节点id
         CategoryEntity categoryEntity = categoryMapper.selectByPrimaryKey(id);
         if (categoryEntity.getId() == null) return this.setResultError("当前节点不存在");
 
