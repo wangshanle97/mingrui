@@ -9,12 +9,16 @@ import com.baidu.shop.status.HTTPStatus;
  * @Date 2020/9/3
  * @Version V1.0
  **/
-public class BaiduException extends RuntimeException {
+public class BaiduException extends Throwable {
 
     private String msg;
 
-    public BaiduException(String msg) {
+    private Integer code;
+
+    public BaiduException(String msg, Integer code) {
         super(msg);
         this.msg = msg;
+        this.code = code;
     }
+
 }

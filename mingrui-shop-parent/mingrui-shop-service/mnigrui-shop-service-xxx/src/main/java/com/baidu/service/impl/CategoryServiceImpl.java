@@ -9,9 +9,7 @@ import com.baidu.shop.base.Result;
 import com.baidu.shop.entity.CategoryBrandEntity;
 import com.baidu.shop.entity.CategoryEntity;
 import com.baidu.shop.entity.SpecGroupEntity;
-import com.baidu.shop.entity.SpecificationsEntity;
 import com.baidu.shop.service.CategoryService;
-import com.baidu.shop.status.HTTPStatus;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +50,7 @@ public class CategoryServiceImpl extends BaseApiService implements CategoryServi
 
         categoryEntity.setParentId(pid);
 
+        //查询品牌
         List<CategoryEntity> list = categoryMapper.select(categoryEntity);
 
         return this.setResultSuccess(list);
@@ -107,7 +106,7 @@ public class CategoryServiceImpl extends BaseApiService implements CategoryServi
     @Override
     public Result<JsonObject> editCategory(CategoryEntity entity) {
 
-            categoryMapper.updateByPrimaryKeySelective(entity);
+        categoryMapper.updateByPrimaryKeySelective(entity);
 
         return this.setResultSuccess();
     }

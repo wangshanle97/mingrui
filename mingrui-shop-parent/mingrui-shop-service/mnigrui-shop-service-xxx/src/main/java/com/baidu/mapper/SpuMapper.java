@@ -1,5 +1,6 @@
 package com.baidu.mapper;
 
+import com.baidu.shop.dto.SpuDTO;
 import com.baidu.shop.entity.SpuEntity;
 import org.apache.ibatis.annotations.Select;
 import tk.mybatis.mapper.common.Mapper;
@@ -8,7 +9,7 @@ import tk.mybatis.mapper.entity.Example;
 import java.util.List;
 
 public interface SpuMapper extends Mapper<SpuEntity> {
-    @Select(value = "SELECT\n" +
+    /*@Select(value = "SELECT\n" +
             " s.*,\n" +
             " brand_name,\n" +
             " category_name \n" +
@@ -35,6 +36,8 @@ public interface SpuMapper extends Mapper<SpuEntity> {
             "  s.id \n" +
             " ) a \n" +
             "WHERE\n" +
-            " s.id = spuid")
-    List<SpuEntity> getSpu(Example example);
+            " s.id = spuid")*/
+    List<SpuDTO> getSpu(Example example);
+
+    List<SpuDTO> getSpuOrGorupList(SpuDTO spuDTO);
 }

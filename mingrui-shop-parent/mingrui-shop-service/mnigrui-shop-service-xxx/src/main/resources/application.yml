@@ -32,7 +32,6 @@ spring:
       validation-timeout: 5000
       # 设置连接在连接池中的存货时间 如果不等于0且小于30秒则会被重置回30分钟
       max-lifetime: 1800000
-
 # 通用mapper
 mapper:
   mappers: tk.mybatis.mapper.common.Mapper
@@ -47,3 +46,5 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+mybatis:
+  mapper-locations: classpath:*.xml

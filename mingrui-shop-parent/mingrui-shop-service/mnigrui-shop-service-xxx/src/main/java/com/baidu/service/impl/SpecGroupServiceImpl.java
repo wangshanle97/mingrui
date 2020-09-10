@@ -5,11 +5,8 @@ import com.baidu.mapper.SpecParamMapper;
 import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
 import com.baidu.shop.dto.SpecGroupDTO;
-import com.baidu.shop.dto.SpecParamDTO;
-import com.baidu.shop.entity.CategoryBrandEntity;
 import com.baidu.shop.entity.SpecGroupEntity;
 import com.baidu.shop.entity.SpecParamEntity;
-import com.baidu.shop.exceotion.BaiduException;
 import com.baidu.shop.service.SpecGroupService;
 import com.baidu.shop.utils.BaiduBeanUtil;
 import com.baidu.shop.utils.ObjectUtil;
@@ -43,8 +40,6 @@ public class SpecGroupServiceImpl extends BaseApiService implements SpecGroupSer
     public Result<List<SpecGroupEntity>> query(SpecGroupDTO specGroupDTO) {
 
         Example example = new Example(SpecGroupEntity.class);
-
-
         if (ObjectUtil.isNotNull(specGroupDTO.getCid())) example.createCriteria().andEqualTo("cid",specGroupDTO.getCid());
 
         List<SpecGroupEntity> specGroupEntities = specGroupMapper.selectByExample(example);
@@ -87,49 +82,4 @@ public class SpecGroupServiceImpl extends BaseApiService implements SpecGroupSer
         return this.setResultSuccess();
     }
 
-    //查询规格组参数
-    @Transactional
-    @Override
-    public Result<List<SpecParamEntity>> getSpecParamInfo(SpecParamDTO specParamDTO) {
-
-        //if(ObjectUtil.isNull(specParamDTO.getGroupId())) return this.setResultError("规格组id不能为空");
-
-        Example example = new Example(SpecParamEntity.class);
-        Example.Criteria criteria = example.createCriteria();
-        if(ObjectUtil.isNotNull(specParamDTO.getGroupId())) criteria.andEqualTo("groupId",specParamDTO.getGroupId());
-
-        if(ObjectUtil.isNotNull(specParamDTO.getCid())) criteria.andEqualTo("cid",specParamDTO.getCid());
-
-
-        List<SpecParamEntity> list = specParamMapper.selectByExample(example);
-
-        return this.setResultSuccess(list);
-    }
-
-
-    //新增规格参数
-    @Transactional
-    @Override
-    public Result<JsonObject> saveSpaecParam(SpecParamDTO specParamDTO) {
-        specParamMapper.insertSelective(BaiduBeanUtil.copyProperties(specParamDTO,SpecParamEntity.class));
-        return this.setResultSuccess();
-    }
-
-    //修改规格参数
-    @Transactional
-    @Override
-    public Result<JsonObject> editSpecParam(SpecParamDTO specParamDTO) {
-        specParamMapper.updateByPrimaryKeySelective(BaiduBeanUtil.copyProperties(specParamDTO,SpecParamEntity.class));
-        return this.setResultSuccess();
-    }
-
-    //删除规格参数
-    @Transactional
-    @Override
-    public Result<JsonObject> removeSpecParam(Integer id) {
-
-        specParamMapper.deleteByPrimaryKey(id);
-
-        return this.setResultSuccess();
-    }
 }
