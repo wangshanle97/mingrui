@@ -49,7 +49,7 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
     //查询品牌信息
     @Transactional
     @Override
-    public Result<PageInfo<BrandEntity>> getBrandInfo(BrandDTO brandDTO) {
+    public Result<PageInfo<BrandDTO>> getBrandInfo(BrandDTO brandDTO) {
 
         //排序
         PageHelper.startPage(brandDTO.getPage(), brandDTO.getRows());
@@ -169,7 +169,7 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
 
     //根据id查询商品分类
     @Override
-    public Result<List<BrandEntity>> getBrandByCate(Integer cid) {
+    public Result<List<BrandDTO>> getBrandByCate(Integer cid) {
         List<BrandEntity> list = brandMapper.getBrandByCateId(cid);
         return this.setResultSuccess(list);
     }
@@ -180,5 +180,12 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
         Example example = new Example(CategoryBrandEntity.class);
         example.createCriteria().andEqualTo("brandId", id);
         categoryBrandMapper.deleteByExample(example);
+    }
+
+    @Override
+    public Result<List<BrandEntity>> getBrandByIdList(String brandIdStr) {
+        List<Integer> brandIdArr = Arrays.asList(brandIdStr.split(",")).stream().map(idStr -> Integer.parseInt(idStr)).collect(Collectors.toList());
+        List<BrandEntity> list = brandMapper.selectByIdList(brandIdArr);
+        return this.setResultSuccess(list);
     }
 }

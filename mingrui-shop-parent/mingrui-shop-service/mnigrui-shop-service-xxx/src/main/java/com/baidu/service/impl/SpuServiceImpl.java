@@ -52,7 +52,7 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
     private StockMapper stockMapper;
 
     @Override
-    public Result<PageInfo<SpuEntity>> getSpuInfo(SpuDTO spuDTO) {
+    public Result<PageInfo<SpuDTO>> getSpuInfo(SpuDTO spuDTO) {
 
         //判断page不为空 分页
         if(ObjectUtil.isNotNull(spuDTO.getPage()) && ObjectUtil.isNotNull(spuDTO.getRows()))
@@ -60,7 +60,7 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
 
         List<SpuDTO> spuOrGorupList = spuMapper.getSpuOrGorupList(spuDTO);
         //构建条件查询
-       /* Example example = new Example(SpuEntity.class);
+        Example example = new Example(SpuEntity.class);
         Example.Criteria criteria = example.createCriteria();
 
         //通过标题模糊查询
@@ -77,11 +77,12 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
         List<SpuEntity> list = spuMapper.selectByExample(example);
 
         //调用封装方法
-        List<SpuDTO> spuDTOList = this.queryBrandByCategoryList(list);*/
+        List<SpuDTO> spuDTOList = this.queryBrandByCategoryList(list);
 
-        //PageInfo<SpuDTO> pageInfo = new PageInfo<>(spuDTOList);
+        PageInfo<SpuDTO> pageInfo = new PageInfo<>(spuDTOList);
+        return this.setResultSuccess(pageInfo);
 
-        return this.setResultSuccess(new PageInfo<>(spuOrGorupList));
+        //return this.setResultSuccess(new PageInfo<>(spuOrGorupList));
     }
 
     //被查询商品调用的方法
@@ -154,7 +155,7 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
 
     //查询sku 实体信息
     @Override
-    public Result<SkuDTO> getSkuBySpuId(Integer spuid) {
+    public Result<List<SkuDTO> > getSkuBySpuId(Integer spuid) {
         List<SkuDTO> skuDTOList = skuMapper.selectSkuAndStockBySpuId(spuid);
         return this.setResultSuccess(skuDTOList);
     }

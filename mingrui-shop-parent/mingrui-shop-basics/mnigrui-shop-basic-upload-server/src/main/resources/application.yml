@@ -20,7 +20,7 @@ mingrui:
   upload:
     path:
       windows: E:\\upload
-      linux: /shenyaqi/upload
+      linux: /wsl/upload
     img:
       #图片服务器主机
       host: http://119.45.206.101/

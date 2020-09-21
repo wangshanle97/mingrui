@@ -15,6 +15,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>mingrui-shop-service-api-xxx</module>
+        <module>mingrui-shop-service-api-search</module>
     </modules>
 
     <dependencies>
