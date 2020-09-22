@@ -72,29 +72,30 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements com.
 
     @Override
     public GoodsResponse search(String search,Integer page) {
+        // 判断搜索框是否为空
         if (StringUtil.isEmpty(search)) throw new RuntimeException("搜索框不能为空");
-
+        //将查询条件 和分页信息 放到查询里面去查询
         SearchHits<GoodsDoc> searchHits = elasticsearchRestTemplate
                 .search(this.getPageAndSearchAndCidAndBrandId(search,page).build(), GoodsDoc.class);
-
+        //调用高亮封装类 设置高亮
         List<SearchHit<GoodsDoc>> highLightHit = ESHighLightUtil.getHighLightHit(searchHits.getSearchHits());
-
+        // 遍历查询出来的高亮信息数据用map集合遍历放到list集合中
         List<GoodsDoc> list = highLightHit.stream().map(searchHit -> searchHit.getContent()).collect(Collectors.toList());
 
         //总条数&总页数
         long total = searchHits.getTotalHits();
+        // 将总条数转换为long类型 在转换为double类型 调用向上取整函数 除10 获得总页数 再次转换为long类型
         long totalPage = Double.valueOf(Math.ceil(Long.valueOf(total).doubleValue() / 10)).longValue();
 
         Aggregations aggregations = searchHits.getAggregations();
-
+        //调用分类查询方法
         Result<List<CategoryEntity>> categoryResult = this.getCategoryIdList(aggregations);
-        GoodsResponse goodsResponse = new GoodsResponse(total, totalPage, this.getBrandIdList(aggregations).getData(), categoryResult.getData(), list);
-
-        return goodsResponse;
+        // 将 总条数&总页数&品牌信息&分类信息&高亮集合 放到 封装的response里面返回
+        return new GoodsResponse(total, totalPage, this.getBrandIdList(aggregations).getData(), categoryResult.getData(), list);
     }
 
     /**
-     * 查询search和分页
+     * 查询search和设置分页
      * @param search
      * @param page
      * @return
@@ -102,71 +103,82 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements com.
     private NativeSearchQueryBuilder getPageAndSearchAndCidAndBrandId(String search,Integer page){
 
         NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder();
-        //条件查询
+        //多条件查询  条件为品牌名称 分类名称 标题
         nativeSearchQueryBuilder.withQuery(QueryBuilders.multiMatchQuery(search,"brandName","categoryName","title"));
-        //分页
+        //分页 每页十条
         nativeSearchQueryBuilder.withPageable(PageRequest.of(page-1,10));
-
+        //设置查询分类 和查询品牌
         nativeSearchQueryBuilder.addAggregation(AggregationBuilders.terms("cidAgg").field("cid3"));
         nativeSearchQueryBuilder.addAggregation(AggregationBuilders.terms("brandIdAgg").field("brandId"));
 
-        //设置高亮字段
+        //设置高亮字段 将标题设置为高亮
         nativeSearchQueryBuilder.withHighlightBuilder(ESHighLightUtil.getHighBrightBuilder("title"));
         return nativeSearchQueryBuilder;
     }
 
+    /**
+     * 查询分类信息
+     * @param aggregations
+     * @return
+     */
     private  Result<List<CategoryEntity>> getCategoryIdList(Aggregations aggregations){
         Terms cidAgg = aggregations.get("cidAgg");
-
-        List<? extends Terms.Bucket> cidAggBuckets = cidAgg.getBuckets();
-
-        List<String> cidStrList = cidAggBuckets.stream().map(cidList -> {
-            Number keyAsNumber = cidList.getKeyAsNumber();
-            return keyAsNumber.intValue() + ",";
-        }).collect(Collectors.toList());
-
+        //通过ID集合查询分类信息
+        //List<? extends Terms.Bucket> cidAggBuckets = cidAgg.getBuckets();
+        //将查询出来的分类信息用map遍历 转换成int类型的字符串 放到list集合里
+        List<String> cidStrList = cidAgg.getBuckets().stream().map(cidList -> cidList.getKeyAsNumber().intValue() + ",")
+                .collect(Collectors.toList());
+        // 将分类集合通过逗号隔开转换为字符串
         String cidStr = String.join(",", cidStrList);
         return categoryFeign.getCategoryByIdList(cidStr);
 
     }
 
+    /**
+     * 通过品牌id集合查询品牌信息
+     * @param aggregations
+     * @return
+     */
     private Result<List<BrandEntity>> getBrandIdList(Aggregations aggregations){
         Terms brandIdAgg = aggregations.get("brandIdAgg");
-        List<? extends Terms.Bucket> brandIdAggBuckets = brandIdAgg.getBuckets();
-
-        List<String> brandIdStrList = brandIdAggBuckets.stream().map(brandIdList -> brandIdList.getKeyAsString()).collect(Collectors.toList());
-
+        //List<? extends Terms.Bucket> brandIdAggBuckets = brandIdAgg.getBuckets();
+        //遍历查询出来的数据
+        List<String> brandIdStrList = brandIdAgg.getBuckets().stream().map(
+                brandIdList -> brandIdList.getKeyAsString()).collect(Collectors.toList());
+        //将list集合转换为字符串 用逗号隔开
         String brandIdStr = String.join(",",brandIdStrList);
 
         return brandFeign.getBrandByIdList(brandIdStr);
     }
 
+    //初始化es库
     @Override
     public Result<JSONObject> initGoodsEsData() {
 
         IndexOperations indexOperations = elasticsearchRestTemplate.indexOps(GoodsDoc.class);
+        //判断是否创建索引和mapping是否成功
         if (indexOperations.exists()){
             indexOperations.create();
             indexOperations.createMapping();
         }
-        List<GoodsDoc> goods = this.goods();
+        //调用查询方法
+        List<GoodsDoc> goods = this.getGoods();
         elasticsearchRestTemplate.save(goods);
         return this.setResultSuccess();
     }
 
+    // 删除es库
     @Override
     public Result<JSONObject> clearGoodsEsData() {
 
         IndexOperations indexOperations = elasticsearchRestTemplate.indexOps(GoodsDoc.class);
 
-        if (indexOperations.exists()){
-            indexOperations.delete();
-        }
+        if (indexOperations.exists())  indexOperations.delete();
 
         return this.setResultSuccess();
     }
 
-    private  List<GoodsDoc> goods() {
+    private  List<GoodsDoc> getGoods() {
         SpuDTO spuDTO = new SpuDTO();
 //        spuDTO.setRows(5);
 //        spuDTO.setPage(1);
@@ -199,9 +211,6 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements com.
                     goodsDoc.setSkus(JSONUtil.toJsonString(value));
                 });
 
-
-
-
                 Map<String, Object> paramSpec = this.getParamSpec(spu.getCid3());
 
                 goodsDoc.setSpecs(paramSpec);
@@ -209,7 +218,6 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements com.
 
             });
         }
-
         return goodsDocs;
     }
 
