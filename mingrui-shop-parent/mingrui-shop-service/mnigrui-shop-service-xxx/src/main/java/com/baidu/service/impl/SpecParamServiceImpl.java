@@ -45,6 +45,7 @@ public class SpecParamServiceImpl extends BaseApiService implements SpecParamSer
         //通过商品分类ID查询
         if(ObjectUtil.isNotNull(specParamDTO.getCid())) criteria.andEqualTo("cid",specParamDTO.getCid());
 
+        if(ObjectUtil.isNotNull(specParamDTO.getSearching())) criteria.andEqualTo("searching",specParamDTO.getSearching());
 
         List<SpecParamEntity> list = specParamMapper.selectByExample(example);
 
