@@ -145,13 +145,18 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements com.
     private NativeSearchQueryBuilder getPageAndSearchAndCidAndBrandId(String search,Integer page,String filter){
 
         NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder();
+        //filter 两个{} 也是字符 所以 要判断filter是否为空 长度是否大于2
         if (StringUtil.isNotEmpty(filter) && filter.length() >2 ){
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+            //将filter字符串转换为json类型
             Map<String, String> filterMap = JSONUtil.toMapValueString(filter);
-
+            //循环filter获取到key值和value值
             filterMap.forEach((key,value) ->{
+                //定义一个自定义查询
                 MatchQueryBuilder matchQueryBuilder = null;
+                //去过key是商品id或者是品牌ID
                 if (key.equals("cid3") || key.equals("brandId")){
+                    //
                     matchQueryBuilder = QueryBuilders.matchQuery(key, value);
                 }else{
                     matchQueryBuilder = QueryBuilders.matchQuery("specs." + key + ".keyword", value);
@@ -164,7 +169,7 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements com.
         nativeSearchQueryBuilder.withQuery(QueryBuilders.multiMatchQuery(search,"brandName","categoryName","title"));
         //分页 每页十条
         nativeSearchQueryBuilder.withPageable(PageRequest.of(page-1,10));
-        //设置查询分类 和查询品牌
+        //设置嵌套查询 根据ID查询分类 和查询品牌
         nativeSearchQueryBuilder.addAggregation(AggregationBuilders.terms("cidAgg").field("cid3"));
         nativeSearchQueryBuilder.addAggregation(AggregationBuilders.terms("brandIdAgg").field("brandId"));
 
@@ -248,6 +253,7 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements com.
     }
 
     private  List<GoodsDoc> getGoods() {
+
         SpuDTO spuDTO = new SpuDTO();
 //        spuDTO.setRows(5);
 //        spuDTO.setPage(1);

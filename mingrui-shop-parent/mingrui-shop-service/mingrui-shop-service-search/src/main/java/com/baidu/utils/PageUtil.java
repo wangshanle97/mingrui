@@ -1,5 +1,9 @@
 package com.baidu.utils;
 
+import lombok.val;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
 /**
  * @ClassName PageUtil
  * @Description: TODO
@@ -7,6 +11,7 @@ package com.baidu.utils;
  * @Date 2020/9/17
  * @Version V1.0
  **/
+@Controller
 public class PageUtil {
 
     //查询spu的总条数
@@ -22,4 +27,6 @@ public class PageUtil {
 //if currentPage == totalPage
 //flag = false
 // }
+
+
 }

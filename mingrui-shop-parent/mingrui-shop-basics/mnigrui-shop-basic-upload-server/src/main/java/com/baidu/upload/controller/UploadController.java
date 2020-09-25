@@ -21,11 +21,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping(value = "upload111")
 public class UploadController extends BaseApiService {
-    //linux系统的上传目录
+    //window系统的上传目录
     @Value(value = "${mingrui.upload.path.windows}")
     private String windowsPath;
 
-    //window系统的上传目录
+    //linux系统的上传目录
     @Value(value = "${mingrui.upload.path.linux}")
     private String linuxPath;
 

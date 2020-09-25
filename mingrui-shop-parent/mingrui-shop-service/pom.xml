@@ -16,6 +16,7 @@
     <modules>
         <module>mnigrui-shop-service-xxx</module>
         <module>mingrui-shop-service-search</module>
+        <module>mingrui-shop-service-template</module>
     </modules>
 
     <dependencies>

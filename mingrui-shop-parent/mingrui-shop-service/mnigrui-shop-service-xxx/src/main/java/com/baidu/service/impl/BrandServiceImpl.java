@@ -52,16 +52,20 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
     public Result<PageInfo<BrandDTO>> getBrandInfo(BrandDTO brandDTO) {
 
         //排序
+        if (ObjectUtil.isNotNull(brandDTO.getPage()) && ObjectUtil.isNotNull(brandDTO.getRows()))
         PageHelper.startPage(brandDTO.getPage(), brandDTO.getRows());
 
         Example example = new Example(BrandEntity.class);
 
-        //判断分类字段是否为空  将分类字段加入条件查询中
-        if (ObjectUtil.isNotNull(brandDTO.getSort())) example.setOrderByClause(brandDTO.getOrderByClause());
+        //判断排序字段是否为空  将分类字段加入条件查询中
+        if (StringUtil.isNotEmpty(brandDTO.getSort())) example.setOrderByClause(brandDTO.getOrderByClause());
+
+        //判斷id是否为空 通过id去查询
+        if (ObjectUtil.isNotNull(brandDTO.getId())) example.createCriteria().andEqualTo("id",brandDTO.getId());
 
         //判断分类名称是否为空
-        if (ObjectUtil.isNotNull(brandDTO.getName()))
-            //创建条件查询
+        if (StringUtil.isNotEmpty(brandDTO.getName()))
+            //创建条件  模糊查询
             example.createCriteria().andLike("name", "%" + brandDTO.getName() + "%");
 
         //条件查询分类

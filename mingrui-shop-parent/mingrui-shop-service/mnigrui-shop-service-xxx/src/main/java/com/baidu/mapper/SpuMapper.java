@@ -37,7 +37,7 @@ public interface SpuMapper extends Mapper<SpuEntity> {
             " ) a \n" +
             "WHERE\n" +
             " s.id = spuid")*/
-    List<SpuDTO> getSpu(Example example);
+    //List<SpuDTO> getSpu(Example example);
 
     List<SpuDTO> getSpuOrGorupList(SpuDTO spuDTO);
 }

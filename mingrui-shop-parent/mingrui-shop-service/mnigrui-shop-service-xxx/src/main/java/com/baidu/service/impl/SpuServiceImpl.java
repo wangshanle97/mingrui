@@ -58,11 +58,12 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
         if(ObjectUtil.isNotNull(spuDTO.getPage()) && ObjectUtil.isNotNull(spuDTO.getRows()))
             PageHelper.startPage(spuDTO.getPage(),spuDTO.getRows());
 
-        List<SpuDTO> spuOrGorupList = spuMapper.getSpuOrGorupList(spuDTO);
+        // List<SpuDTO> spuOrGorupList = spuMapper.getSpuOrGorupList(spuDTO);
         //构建条件查询
         Example example = new Example(SpuEntity.class);
         Example.Criteria criteria = example.createCriteria();
 
+        if (ObjectUtil.isNotNull(spuDTO.getId())) criteria.andEqualTo("id",spuDTO.getId());
         //通过标题模糊查询
         if(StringUtil.isNotEmpty(spuDTO.getTitle()))
             criteria.andLike("title","%"+spuDTO.getTitle()+"%");
@@ -72,7 +73,7 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
             criteria.andEqualTo("saleable",spuDTO.getSaleable());
 
         //排序
-        if(StringUtil.isNotEmpty(spuDTO.getSort()))example.setOrderByClause(spuDTO.getOrderByClause());
+        if(StringUtil.isNotEmpty(spuDTO.getSort())) example.setOrderByClause(spuDTO.getOrderByClause());
 
         List<SpuEntity> list = spuMapper.selectByExample(example);
 
@@ -139,9 +140,9 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
 
         spuDetailEntity.setSpuId(spuid);
         spuDetailMapper.insertSelective(spuDetailEntity);
-
+        System.out.println(spuDTO.getSkus().get(0).getPrice());
         //新增sku表,该表表示具体的商品实体,如黑色的 64g的iphone 8
-
+        //if (spuDTO.getSkus().get(0).getPrice() == 0);
         this.saveSkuAndStock(spuDTO.getSkus(),spuid,date);
         return this.setResultSuccess();
     }
@@ -238,6 +239,7 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
             StockEntity stockEntity = new StockEntity();
             stockEntity.setSkuId(skuEntity.getId());
             stockEntity.setStock(skuDTO.getStock());
+            //if (skuDTO.getPrice() == )
 
             stockMapper.insertSelective(stockEntity);
         });
