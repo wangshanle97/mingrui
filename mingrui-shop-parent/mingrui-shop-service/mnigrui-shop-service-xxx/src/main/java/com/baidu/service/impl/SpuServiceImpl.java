@@ -1,5 +1,6 @@
 package com.baidu.service.impl;
 
+import com.baidu.fegin.SpuSaveFegin;
 import com.baidu.mapper.*;
 import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
@@ -13,11 +14,19 @@ import com.baidu.shop.utils.StringUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.JsonObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
+import org.springframework.cloud.openfeign.FeignAutoConfiguration;
+import org.springframework.cloud.openfeign.ribbon.FeignRibbonClientAutoConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.bind.annotation.RestController;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -32,6 +41,9 @@ import java.util.stream.Collectors;
  **/
 @RestController
 public class SpuServiceImpl extends BaseApiService implements GoodsService {
+
+    @Autowired
+    private SpuSaveFegin spuSaveFegin;
 
     @Resource
     private SpuMapper spuMapper;
@@ -144,6 +156,17 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
         //新增sku表,该表表示具体的商品实体,如黑色的 64g的iphone 8
         //if (spuDTO.getSkus().get(0).getPrice() == 0);
         this.saveSkuAndStock(spuDTO.getSkus(),spuid,date);
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter(){
+            @Override
+            public void afterCommit() {
+                spuSaveFegin.createStaticHTMLTemplate(spuid);
+
+            }
+        });
+
+
+
         return this.setResultSuccess();
     }
 
@@ -196,6 +219,7 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
     }
 
     //删除商品信息方法
+
     @Override
     public Result<JsonObject> delSpu(Integer spuId) {
 
@@ -205,6 +229,12 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
         //删除商品参数信息
         spuDetailMapper.deleteByPrimaryKey(spuId);
 
+        stockMapper.deleteByPrimaryKey(spuId);
+        File file = new File("E:\\static-html\\item\\" + spuId + ".html");
+        if (file.exists()){
+            file.delete();
+            System.out.println("删除成功");
+        }
         //调用查询
         List<Long> skuIdArr = this.querySkuIdBySpuId(spuId);
         return this.setResultSuccess();

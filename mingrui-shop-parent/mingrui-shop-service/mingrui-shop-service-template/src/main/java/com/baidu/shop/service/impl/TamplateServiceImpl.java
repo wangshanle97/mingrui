@@ -103,6 +103,7 @@ public class TamplateServiceImpl extends BaseApiService implements TemplateServi
         Result<PageInfo<SpuDTO>> spuInfo = goodsFeign.getSpuInfo(spuDTO);
 
         if (spuInfo.getCode() == HTTPStatus.OK){
+            System.out.println(spuInfo.getData().getList().get(0));
             SpuDTO spu = spuInfo.getData().getList().get(0);
             if(spuInfo.getData().getSize() == 1){
                 map.put("spuInfo" , spu);
