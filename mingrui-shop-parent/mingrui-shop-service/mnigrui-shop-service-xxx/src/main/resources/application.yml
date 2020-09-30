@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: xxx-service
+  main:
+    allow-bean-definition-overriding: true
   # 配置数据源
   datasource:
     # 数据源名称，任意

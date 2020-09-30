@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
 import com.baidu.shop.document.GoodsDoc;
+import com.baidu.shop.dto.SearchDTO;
 import com.baidu.shop.dto.SkuDTO;
 import com.baidu.shop.dto.SpecParamDTO;
 import com.baidu.shop.dto.SpuDTO;
@@ -21,19 +22,16 @@ import com.baidu.shop.utils.ESHighLightUtil;
 import com.baidu.shop.utils.JSONUtil;
 import com.baidu.shop.utils.StringUtil;
 import com.github.pagehelper.PageInfo;
-import com.google.gson.JsonObject;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.IndexOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
@@ -69,12 +67,13 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements com.
 
     // 搜索主方法
     @Override
-    public GoodsResponse search(String search,Integer page,String filter) {
+    public GoodsResponse search(SearchDTO searchDTO) {
+
         // 判断搜索框是否为空
-        if (StringUtil.isEmpty(search)) throw new RuntimeException("搜索框不能为空");
+        if (StringUtil.isEmpty(searchDTO.getSearch())) throw new RuntimeException("搜索框不能为空");
         //将查询条件 和分页信息 放到查询里面去查询
         SearchHits<GoodsDoc> searchHits = elasticsearchRestTemplate
-                .search(this.getPageAndSearchAndCidAndBrandId(search,page,filter).build(), GoodsDoc.class);
+                .search(this.getPageAndSearchAndCidAndBrandId(searchDTO.getSearch(),searchDTO.getPage(),searchDTO.getFilter()).build(), GoodsDoc.class);
         //调用高亮封装类 设置高亮
         List<SearchHit<GoodsDoc>> highLightHit = ESHighLightUtil.getHighLightHit(searchHits.getSearchHits());
         // 遍历查询出来的高亮信息数据用map集合遍历放到list集合中
@@ -95,7 +94,7 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements com.
             hotCid = mapEntry.getKey();
             categoryList = mapEntry.getValue();
         }
-        Map<String, List<String>> specParam  = this.getSpecParam(hotCid, search);
+        Map<String, List<String>> specParam  = this.getSpecParam(hotCid, searchDTO.getSearch());
 
         // 将 总条数&总页数&品牌信息&分类信息&高亮集合 放到 封装的response里面返回
         return new GoodsResponse(total, totalPage, this.getBrandIdList(aggregations).getData(), categoryList, list,specParam);
@@ -227,34 +226,36 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements com.
 
     //初始化es库
     @Override
-    public Result<JSONObject> initGoodsEsData() {
+    public Result<JSONObject> initGoodsEsData(Integer id) {
 
-        IndexOperations indexOperations = elasticsearchRestTemplate.indexOps(GoodsDoc.class);
+        /*IndexOperations indexOperations = elasticsearchRestTemplate.indexOps(GoodsDoc.class);
         //判断是否创建索引和mapping是否成功
         if (indexOperations.exists()){
             indexOperations.create();
             indexOperations.createMapping();
-        }
+        }*/
         //调用查询方法
-        List<GoodsDoc> goods = this.getGoods();
+        List<GoodsDoc> goods = this.getGoods(id);
         elasticsearchRestTemplate.save(goods);
         return this.setResultSuccess();
     }
 
     // 删除es库
     @Override
-    public Result<JSONObject> clearGoodsEsData() {
+    public Result<JSONObject> clearGoodsEsData(String id) {
+        elasticsearchRestTemplate.delete(id,GoodsDoc.class);
 
-        IndexOperations indexOperations = elasticsearchRestTemplate.indexOps(GoodsDoc.class);
+        /*IndexOperations indexOperations = elasticsearchRestTemplate.indexOps(GoodsDoc.class);
 
-        if (indexOperations.exists())  indexOperations.delete();
+        if (indexOperations.exists())  indexOperations.delete();*/
 
         return this.setResultSuccess();
     }
 
-    private  List<GoodsDoc> getGoods() {
+    private  List<GoodsDoc> getGoods(Integer id) {
 
         SpuDTO spuDTO = new SpuDTO();
+        spuDTO.setId(id);
 //        spuDTO.setRows(5);
 //        spuDTO.setPage(1);
         Result<PageInfo<SpuDTO>> spuInfo = goodsFeign.getSpuInfo(spuDTO);

@@ -1,9 +1,11 @@
 package com.baidu.service.impl;
 
-import com.baidu.fegin.SpuSaveFegin;
+import com.baidu.fegin.ShopElasticsearchFeign;
+import com.baidu.fegin.SpuSaveFeign;
 import com.baidu.mapper.*;
 import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
+import com.baidu.shop.document.GoodsDoc;
 import com.baidu.shop.dto.SkuDTO;
 import com.baidu.shop.dto.SpuDTO;
 import com.baidu.shop.entity.*;
@@ -15,10 +17,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
-import org.springframework.cloud.openfeign.FeignAutoConfiguration;
-import org.springframework.cloud.openfeign.ribbon.FeignRibbonClientAutoConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -27,6 +25,7 @@ import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -43,7 +42,10 @@ import java.util.stream.Collectors;
 public class SpuServiceImpl extends BaseApiService implements GoodsService {
 
     @Autowired
-    private SpuSaveFegin spuSaveFegin;
+    private SpuSaveFeign spuSaveFeign;
+
+    @Autowired
+    private ShopElasticsearchFeign shopElasticsearchFeign;
 
     @Resource
     private SpuMapper spuMapper;
@@ -62,6 +64,7 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
 
     @Resource
     private StockMapper stockMapper;
+
 
     @Override
     public Result<PageInfo<SpuDTO>> getSpuInfo(SpuDTO spuDTO) {
@@ -160,12 +163,11 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter(){
             @Override
             public void afterCommit() {
-                spuSaveFegin.createStaticHTMLTemplate(spuid);
+                spuSaveFeign.createStaticHTMLTemplate(spuid);
 
+                shopElasticsearchFeign.initGoodsEsData(spuid);
             }
         });
-
-
 
         return this.setResultSuccess();
     }
@@ -215,6 +217,19 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
         //调用批量新增商品实体 & 商品库存
         this.saveSkuAndStock(spuDTO.getSkus(),spuDTO.getId(),date);
 
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter(){
+            @Override
+            public void afterCommit() {
+
+                shopElasticsearchFeign.initGoodsEsData(spuDTO.getId());
+            }
+        });
+        File file = new File("E:\\static-html\\item\\" + spuDTO.getId() + ".html");
+        if (file.exists()){
+            file.delete();
+        }
+        spuSaveFeign.createStaticHTMLTemplate(spuDTO.getId());
+
         return this.setResultSuccess();
     }
 
@@ -235,6 +250,7 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
             file.delete();
             System.out.println("删除成功");
         }
+        shopElasticsearchFeign.clearGoodsEsData(spuId.toString());
         //调用查询
         List<Long> skuIdArr = this.querySkuIdBySpuId(spuId);
         return this.setResultSuccess();

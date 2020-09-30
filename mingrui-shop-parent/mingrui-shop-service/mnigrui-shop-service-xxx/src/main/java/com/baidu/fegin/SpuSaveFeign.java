@@ -4,5 +4,5 @@ import com.baidu.shop.service.TemplateService;
 import org.springframework.cloud.openfeign.FeignClient;
 
 @FeignClient(value = "template-server",contextId = "TemplateService")
-public interface SpuSaveFegin extends TemplateService {
+public interface SpuSaveFeign extends TemplateService {
 }
