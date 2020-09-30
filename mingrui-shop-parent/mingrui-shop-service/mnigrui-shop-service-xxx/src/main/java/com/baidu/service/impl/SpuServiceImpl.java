@@ -5,7 +5,6 @@ import com.baidu.fegin.SpuSaveFeign;
 import com.baidu.mapper.*;
 import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
-import com.baidu.shop.document.GoodsDoc;
 import com.baidu.shop.dto.SkuDTO;
 import com.baidu.shop.dto.SpuDTO;
 import com.baidu.shop.entity.*;
@@ -235,8 +234,14 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
 
     //删除商品信息方法
 
+    @Transactional
     @Override
     public Result<JsonObject> delSpu(Integer spuId) {
+
+        Example example = new Example(SkuEntity.class);
+        example.createCriteria().andEqualTo("spuId",spuId);
+        List<SkuEntity> skuEntities = skuMapper.selectByExample(example);
+        List<Long> list = skuEntities.stream().map(sku -> sku.getId() ).collect(Collectors.toList());
 
         //删除商品实体
         spuMapper.deleteByPrimaryKey(spuId);
@@ -244,15 +249,18 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
         //删除商品参数信息
         spuDetailMapper.deleteByPrimaryKey(spuId);
 
-        stockMapper.deleteByPrimaryKey(spuId);
+        if (list.size() != 0){
+            stockMapper.deleteByIdList(list);
+            skuMapper.deleteByIdList(list);
+        }
+
+
         File file = new File("E:\\static-html\\item\\" + spuId + ".html");
         if (file.exists()){
             file.delete();
             System.out.println("删除成功");
         }
         shopElasticsearchFeign.clearGoodsEsData(spuId.toString());
-        //调用查询
-        List<Long> skuIdArr = this.querySkuIdBySpuId(spuId);
         return this.setResultSuccess();
     }
 
