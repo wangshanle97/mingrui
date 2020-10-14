@@ -13,6 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
  * @Date 2020/9/29
  * @Version V1.0
  **/
-@FeignClient(value = "search-server",contextId = "ShopElasticsearchService")
-public interface ShopElasticsearchFeign extends ShopElasticsearchService {
-}
+//@FeignClient(value = "search-server",contextId = "ShopElasticsearchService")
+//public interface ShopElasticsearchFeign extends ShopElasticsearchService {
+//}

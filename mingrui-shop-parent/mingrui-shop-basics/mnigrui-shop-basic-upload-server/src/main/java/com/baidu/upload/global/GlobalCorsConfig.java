@@ -7,15 +7,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 /**
- * @ClassName GolbalCorsConfig
+ * @ClassName GlobalCorsConfig
  * @Description: TODO
  * @Author wangshanle
- * @Date 2020/9/1
+ * @Date 2020/10/12
  * @Version V1.0
  **/
 @Configuration
-public class GolbalCorsConfig {
-
+public class GlobalCorsConfig {
     @Bean
     public CorsFilter corsFilter() {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

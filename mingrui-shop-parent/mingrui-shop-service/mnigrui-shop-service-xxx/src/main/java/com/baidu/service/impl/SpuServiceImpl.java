@@ -1,7 +1,7 @@
 package com.baidu.service.impl;
 
-import com.baidu.fegin.ShopElasticsearchFeign;
-import com.baidu.fegin.SpuSaveFeign;
+import com.baidu.component.MrRabbitmq;
+import com.baidu.shop.constant.MrMessageConstant;
 import com.baidu.mapper.*;
 import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
@@ -17,14 +17,10 @@ import com.github.pagehelper.PageInfo;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.bind.annotation.RestController;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -41,10 +37,13 @@ import java.util.stream.Collectors;
 public class SpuServiceImpl extends BaseApiService implements GoodsService {
 
     @Autowired
-    private SpuSaveFeign spuSaveFeign;
+    private MrRabbitmq mrRabbitmq;
 
-    @Autowired
-    private ShopElasticsearchFeign shopElasticsearchFeign;
+//    @Autowired
+//    private SpuSaveFeign spuSaveFeign;
+
+//    @Autowired
+//    private ShopElasticsearchFeign shopElasticsearchFeign;
 
     @Resource
     private SpuMapper spuMapper;
@@ -77,6 +76,7 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
         Example example = new Example(SpuEntity.class);
         Example.Criteria criteria = example.createCriteria();
 
+        //判断id是否为空
         if (ObjectUtil.isNotNull(spuDTO.getId())) criteria.andEqualTo("id",spuDTO.getId());
         //通过标题模糊查询
         if(StringUtil.isNotEmpty(spuDTO.getTitle()))
@@ -131,10 +131,28 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
         return spuDtoList;
     }
 
-    @Transactional
+    //
     @Override
     public Result<JsonObject> saveSpu(SpuDTO spuDTO) {
 
+        Integer info = addInfo(spuDTO);
+
+//        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter(){
+//            @Override
+//            public void afterCommit() {
+//                spuSaveFeign.createStaticHTMLTemplate(spuid);
+//
+//                shopElasticsearchFeign.initGoodsEsData(spuid);
+//            }
+//        });
+
+        mrRabbitmq.send(info + "", MrMessageConstant.SPU_ROUT_KEY_SAVE);
+
+        return this.setResultSuccess();
+    }
+
+    @Transactional
+    public Integer addInfo(SpuDTO spuDTO){
         //new 一个当前时间
         Date date = new Date();
 
@@ -159,16 +177,7 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
         //if (spuDTO.getSkus().get(0).getPrice() == 0);
         this.saveSkuAndStock(spuDTO.getSkus(),spuid,date);
 
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter(){
-            @Override
-            public void afterCommit() {
-                spuSaveFeign.createStaticHTMLTemplate(spuid);
-
-                shopElasticsearchFeign.initGoodsEsData(spuid);
-            }
-        });
-
-        return this.setResultSuccess();
+        return spuid;
     }
 
     //查询spu 商品信息
@@ -186,10 +195,33 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
     }
 
     //修改商品信息
-    @Transactional
+    //Transactional
     @Override
     public Result<SkuDTO> editSpu(SpuDTO spuDTO) {
 
+        this.updateInfoTransactional(spuDTO);
+//        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter(){
+//            @Override
+//            public void afterCommit() {
+//
+//                shopElasticsearchFeign.initGoodsEsData(spuDTO.getId());
+//                File file = new File("E:\\static-html\\item\\" + spuDTO.getId() + ".html");
+//                if (file.exists()){
+//                    file.delete();
+//                }
+//                spuSaveFeign.createStaticHTMLTemplate(spuDTO.getId());
+//            }
+//        });
+
+
+        mrRabbitmq.send(spuDTO.getId() + "", MrMessageConstant.SPU_ROUT_KEY_UPDATE);
+
+
+        return this.setResultSuccess();
+    }
+
+    @Transactional
+    public void updateInfoTransactional(SpuDTO spuDTO){
         //new 当前系统时间
         Date date = new Date();
 
@@ -215,29 +247,28 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
         }
         //调用批量新增商品实体 & 商品库存
         this.saveSkuAndStock(spuDTO.getSkus(),spuDTO.getId(),date);
-
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter(){
-            @Override
-            public void afterCommit() {
-
-                shopElasticsearchFeign.initGoodsEsData(spuDTO.getId());
-            }
-        });
-        File file = new File("E:\\static-html\\item\\" + spuDTO.getId() + ".html");
-        if (file.exists()){
-            file.delete();
-        }
-        spuSaveFeign.createStaticHTMLTemplate(spuDTO.getId());
-
-        return this.setResultSuccess();
     }
 
     //删除商品信息方法
 
-    @Transactional
+    //@Transactional
     @Override
     public Result<JsonObject> delSpu(Integer spuId) {
+        this.delInfoTransactional(spuId);
 
+//        File file = new File("E:\\static-html\\item\\" + spuId + ".html");
+//        if (file.exists()){
+//            file.delete();
+//            System.out.println("删除成功");
+//        }
+//        shopElasticsearchFeign.clearGoodsEsData(spuId.toString());
+        mrRabbitmq.send(spuId + "", MrMessageConstant.SPU_ROUT_KEY_DELETE);
+
+        return this.setResultSuccess();
+    }
+
+    @Transactional
+    public void delInfoTransactional(Integer spuId){
         Example example = new Example(SkuEntity.class);
         example.createCriteria().andEqualTo("spuId",spuId);
         List<SkuEntity> skuEntities = skuMapper.selectByExample(example);
@@ -253,15 +284,6 @@ public class SpuServiceImpl extends BaseApiService implements GoodsService {
             stockMapper.deleteByIdList(list);
             skuMapper.deleteByIdList(list);
         }
-
-
-        File file = new File("E:\\static-html\\item\\" + spuId + ".html");
-        if (file.exists()){
-            file.delete();
-            System.out.println("删除成功");
-        }
-        shopElasticsearchFeign.clearGoodsEsData(spuId.toString());
-        return this.setResultSuccess();
     }
 
     //被调用的查询方法

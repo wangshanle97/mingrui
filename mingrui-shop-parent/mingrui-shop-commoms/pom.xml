@@ -16,4 +16,17 @@
     <modules>
         <module>mingrui-shop-common-core</module>
     </modules>
+    <dependencies>
+        <dependency>
+            <groupId>com.mrshop.luosimao</groupId>
+            <artifactId>jersey-bundle</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.mrshop.luosimao</groupId>
+            <artifactId>json-org</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
 </project>

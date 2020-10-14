@@ -16,12 +16,14 @@ import com.baidu.shop.feign.BrandFeign;
 import com.baidu.shop.feign.CategoryFeign;
 import com.baidu.shop.feign.GoodsFeign;
 import com.baidu.shop.response.GoodsResponse;
+import com.baidu.shop.service.ShopElasticsearchService;
 import com.baidu.shop.service.SpecParamService;
 import com.baidu.shop.status.HTTPStatus;
 import com.baidu.shop.utils.ESHighLightUtil;
 import com.baidu.shop.utils.JSONUtil;
 import com.baidu.shop.utils.StringUtil;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -32,6 +34,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.IndexOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
@@ -48,7 +51,8 @@ import java.util.stream.Collectors;
  * @Version V1.0
  **/
 @RestController
-public class ShopElasticsearchServiceImpl extends BaseApiService implements com.baidu.shop.service.ShopElasticsearchService {
+@Slf4j
+public class ShopElasticsearchServiceImpl extends BaseApiService implements ShopElasticsearchService {
 
     @Autowired
     private GoodsFeign goodsFeign;
@@ -64,6 +68,25 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements com.
 
     @Autowired
     private BrandFeign brandFeign;
+
+    @Override
+    public Result<JSONObject> saveData(Integer spuId) {
+
+        SpuDTO spuDTO = new SpuDTO();
+        spuDTO.setId(spuId);
+        List<GoodsDoc> goodsDocs = this.getGoods(spuDTO);
+        GoodsDoc goodsDoc = goodsDocs.get(0);
+        elasticsearchRestTemplate.save(goodsDoc);
+        return this.setResultSuccess();
+    }
+
+    @Override
+    public Result<JSONObject> delData(Integer spuId) {
+        GoodsDoc goodsDoc = new GoodsDoc();
+        goodsDoc.setId(spuId.longValue());
+        elasticsearchRestTemplate.delete(goodsDoc);
+        return this.setResultSuccess();
+    }
 
     // 搜索主方法
     @Override
@@ -226,7 +249,7 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements com.
 
     //初始化es库
     @Override
-    public Result<JSONObject> initGoodsEsData(Integer id) {
+    public Result<JSONObject> initGoodsEsData() {
 
         /*IndexOperations indexOperations = elasticsearchRestTemplate.indexOps(GoodsDoc.class);
         //判断是否创建索引和mapping是否成功
@@ -235,27 +258,26 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements com.
             indexOperations.createMapping();
         }*/
         //调用查询方法
-        List<GoodsDoc> goods = this.getGoods(id);
+
+        List<GoodsDoc> goods = this.getGoods(new SpuDTO());
         elasticsearchRestTemplate.save(goods);
         return this.setResultSuccess();
     }
 
     // 删除es库
     @Override
-    public Result<JSONObject> clearGoodsEsData(String id) {
-        elasticsearchRestTemplate.delete(id,GoodsDoc.class);
-
-        /*IndexOperations indexOperations = elasticsearchRestTemplate.indexOps(GoodsDoc.class);
-
-        if (indexOperations.exists())  indexOperations.delete();*/
+    public Result<JSONObject> clearGoodsEsData() {
+        IndexOperations indexOperations = elasticsearchRestTemplate.indexOps(GoodsDoc.class);
+        if(indexOperations.exists()){
+            indexOperations.delete();
+            log.info("索引删除成功");
+        }
 
         return this.setResultSuccess();
     }
 
-    private  List<GoodsDoc> getGoods(Integer id) {
+    private  List<GoodsDoc> getGoods(SpuDTO spuDTO) {
 
-        SpuDTO spuDTO = new SpuDTO();
-        spuDTO.setId(id);
 //        spuDTO.setRows(5);
 //        spuDTO.setPage(1);
         Result<PageInfo<SpuDTO>> spuInfo = goodsFeign.getSpuInfo(spuDTO);

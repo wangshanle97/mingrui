@@ -135,7 +135,9 @@
                             <!--左右按钮-->
                             <div class="items">
                                 <ul>
-                                    <li v-for="image in images"><img :src="image" :bimg="image" onmousemove="preview(this)" /></li>
+                                    <li v-for="image in images">
+                                        <img :src="image" :bimg="image" onmousemove="preview(this)" />
+                                    </li>
                                     <!--                                    <li><img src="/img/_/s2.png" bimg="/img/_/b2.png" onmousemove="preview(this)" /></li>-->
                                     <!--                                    <li><img src="/img/_/s3.png" bimg="/img/_/b3.png" onmousemove="preview(this)" /></li>-->
                                     <!--                                    <li><img src="/img/_/s1.png" bimg="/img/_/b1.png" onmousemove="preview(this)" /></li>-->
@@ -653,7 +655,9 @@
 
                 const index = Object.values(this.indexes).join("_");
 
-                return this.skuList.find(sku => sku.indexes == index);
+                var skus = this.skuList.find(sku => sku.indexes == index)
+                return  skus ? skus : [];
+
             },
             images(){
                 return this.sku.images ? this.sku.images.split(",") : [];

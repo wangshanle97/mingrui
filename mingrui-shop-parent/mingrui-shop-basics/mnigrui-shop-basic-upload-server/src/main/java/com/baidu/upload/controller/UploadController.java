@@ -19,8 +19,9 @@ import java.util.UUID;
  * @Version V1.0
  **/
 @RestController
-@RequestMapping(value = "upload111")
+@RequestMapping(value = "uploadImg")
 public class UploadController extends BaseApiService {
+
     //window系统的上传目录
     @Value(value = "${mingrui.upload.path.windows}")
     private String windowsPath;
@@ -36,11 +37,14 @@ public class UploadController extends BaseApiService {
     @PostMapping
     public Result<String> uploadImg(@RequestParam MultipartFile file) {
 
+        //宁愿写一堆if else 我也不愿意去写一个switch
+
         if(file.isEmpty()) return this.setResultError("上传的文件为空");//判断上传的文件是否为空
 
         String filename = file.getOriginalFilename();//获取文件名
 
-        String path = "";
+        String path = "";//文件上传的路径
+        //判断当前操作系统
         String os = System.getProperty("os.name").toLowerCase();
         if(os.indexOf("win") != -1){
             path = windowsPath;
@@ -56,6 +60,7 @@ public class UploadController extends BaseApiService {
         //判断文件夹是否存在,不存在的话就创建
         if(!dest.getParentFile().exists()) dest.getParentFile().mkdirs();
 
+        //struts / springMVC内置的上传都是在做复制的操作
         try {
             file.transferTo(dest);//上传
         } catch (IllegalStateException e) {

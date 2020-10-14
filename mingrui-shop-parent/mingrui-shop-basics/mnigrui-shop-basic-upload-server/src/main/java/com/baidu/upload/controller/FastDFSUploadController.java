@@ -39,7 +39,6 @@ public class FastDFSUploadController {
     @Autowired
     private ThumbImageConfig thumbImageConfig;
 
-
     @PostMapping
     public Result<String> uploadImg(@RequestParam MultipartFile file) throws IOException {
         InputStream inputStream = file.getInputStream();//获取文件输入流
