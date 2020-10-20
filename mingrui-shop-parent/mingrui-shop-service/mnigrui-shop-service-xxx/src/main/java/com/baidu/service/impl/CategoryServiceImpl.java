@@ -9,7 +9,7 @@ import com.baidu.shop.base.Result;
 import com.baidu.shop.entity.CategoryBrandEntity;
 import com.baidu.shop.entity.CategoryEntity;
 import com.baidu.shop.entity.SpecGroupEntity;
-import com.baidu.shop.service.CategoryService;
+import com.baidu.shop.business.CategoryService;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;

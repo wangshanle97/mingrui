@@ -480,31 +480,31 @@ const stringify = function(object, options) {
             values = values.concat(this.stringify(
                 obj[key],
                 {prefix:generateArrayPrefix(prefix, key),
-                generateArrayPrefix,
-                strictNullHandling,
-                skipNulls,
-                encoder,
-                filter,
-                sort,
-                allowDots,
-                serializeDate,
-                formatter,
-                encodeValuesOnly}
+                    generateArrayPrefix,
+                    strictNullHandling,
+                    skipNulls,
+                    encoder,
+                    filter,
+                    sort,
+                    allowDots,
+                    serializeDate,
+                    formatter,
+                    encodeValuesOnly}
             ));
         } else {
             values = values.concat(this.stringify(
                 obj[key],
                 {prefix:prefix + (allowDots ? '.' + key : '[' + key + ']'),
-                generateArrayPrefix,
-                strictNullHandling,
-                skipNulls,
-                encoder,
-                filter,
-                sort,
-                allowDots,
-                serializeDate,
-                formatter,
-                encodeValuesOnly}
+                    generateArrayPrefix,
+                    strictNullHandling,
+                    skipNulls,
+                    encoder,
+                    filter,
+                    sort,
+                    allowDots,
+                    serializeDate,
+                    formatter,
+                    encodeValuesOnly}
             ));
         }
     }
@@ -512,12 +512,17 @@ const stringify = function(object, options) {
     return values.join("&");
 }
 
-axios.defaults.baseURL = "http://api.mrshop.com/api-search";
+axios.defaults.baseURL = "http://api.mrshop.com/api";
 axios.defaults.timeout = 5000;
 axios.defaults.withCredentials = true
 
 // 配置对象
 const mrshop = {
+    CLINT_CAR_LIST : "carList",
+    checkUserLogin(){
+
+        return mrshop.http.get('/oauth/oauth/verify');
+    },
     /**
      * 对encodeURI()编码过的 URI 进行解码。并且获取其中的指定参数
      * @param name

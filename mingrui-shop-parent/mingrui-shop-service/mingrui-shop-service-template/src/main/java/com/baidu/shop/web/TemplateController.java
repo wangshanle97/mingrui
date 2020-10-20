@@ -1,11 +1,8 @@
 package com.baidu.shop.web;
 
 import com.baidu.shop.dto.SpuDTO;
-import com.baidu.shop.service.PageService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import com.baidu.shop.business.PageService;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.Map;

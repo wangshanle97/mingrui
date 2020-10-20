@@ -1,6 +1,6 @@
 package com.baidu.shop.feign;
 
-import com.baidu.shop.service.BrandService;
+import com.baidu.shop.business.BrandService;
 import org.springframework.cloud.openfeign.FeignClient;
 
 /**

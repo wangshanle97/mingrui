@@ -9,7 +9,7 @@ import com.baidu.shop.dto.BrandDTO;
 import com.baidu.shop.entity.BrandEntity;
 import com.baidu.shop.entity.CategoryBrandEntity;
 import com.baidu.shop.entity.SpuEntity;
-import com.baidu.shop.service.BrandService;
+import com.baidu.shop.business.BrandService;
 import com.baidu.shop.utils.BaiduBeanUtil;
 import com.baidu.shop.utils.ObjectUtil;
 import com.baidu.shop.utils.PinyinUtil;

@@ -1,7 +1,7 @@
 package com.baidu.shop.listener;
 
 import com.baidu.shop.constant.MrMessageConstant;
-import com.baidu.shop.service.TemplateService;
+import com.baidu.shop.business.TemplateService;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.ExchangeTypes;

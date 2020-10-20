@@ -1,11 +1,5 @@
 package com.baidu.fegin;
 
-import com.alibaba.fastjson.JSONObject;
-import com.baidu.shop.base.Result;
-import com.baidu.shop.service.ShopElasticsearchService;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-
 /**
  * @ClassName ShopElasticsearchFeign
  * @Description: TODO

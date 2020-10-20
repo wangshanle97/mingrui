@@ -13,6 +13,8 @@ zuul:
     xxx-service: /manage/**
     search-server: /search/**
     user-server: /user-center/**
+    oauth-server: /oauth/**
+    car-server: /car/**
 #    # 路由名称
 #    api-xxx:
 #      # 声明将所有以/api-ribbon/的请求都转发到eureka-ribbon的服务中
@@ -28,6 +30,8 @@ zuul:
   # 忽略上传服务
   ignored-services:
     -upload-server
+  add-host-header: true
+  sensitive-headers:
 
 #配置负载
 ribbon:
@@ -49,3 +53,12 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+mrshop:
+  #声明不进行拦截的请求用,分隔
+  filter:
+    excludes: /api/oauth/oauth/login,/api/user-center/user/register,/api/oauth/oauth/verify,/api/search/es/search,/api/user-center/user/check/asdd/1,/api/user-center/user/check/15315698127/2,/api/user-center/user/sendValidCode,/api/user-center/user/checkValidCode/,/api/car/car/mergeCar,/api/car/car/getCurrentUserGoodsCar
+
+  jwt:
+    pubKeyPath: E:\redis\rea.pub # 公钥地址(私钥加密,公钥解密)
+    cookieName: MRSHOP_TOKEN

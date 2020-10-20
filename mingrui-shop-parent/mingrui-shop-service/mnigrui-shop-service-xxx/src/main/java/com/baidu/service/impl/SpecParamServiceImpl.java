@@ -5,7 +5,7 @@ import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
 import com.baidu.shop.dto.SpecParamDTO;
 import com.baidu.shop.entity.SpecParamEntity;
-import com.baidu.shop.service.SpecParamService;
+import com.baidu.shop.business.SpecParamService;
 import com.baidu.shop.utils.BaiduBeanUtil;
 import com.baidu.shop.utils.ObjectUtil;
 import com.google.gson.JsonObject;

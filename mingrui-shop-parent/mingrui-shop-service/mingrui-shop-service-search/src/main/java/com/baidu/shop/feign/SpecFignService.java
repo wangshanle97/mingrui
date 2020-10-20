@@ -1,7 +1,6 @@
 package com.baidu.shop.feign;
 
-import com.baidu.shop.service.SpecGroupService;
-import com.baidu.shop.service.SpecParamService;
+import com.baidu.shop.business.SpecParamService;
 import org.springframework.cloud.openfeign.FeignClient;
 
 /**
