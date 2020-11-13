@@ -4,6 +4,7 @@ import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
 import com.baidu.shop.constant.RegisterConstant;
 import com.baidu.shop.constant.UserConstant;
+import com.baidu.shop.dto.NoteDTO;
 import com.baidu.shop.dto.UserDTO;
 import com.baidu.shop.entity.UserEntity;
 import com.baidu.shop.mapper.UserMapper;
@@ -34,16 +35,22 @@ import java.util.List;
 @Slf4j
 public class UserServiceImpl extends BaseApiService implements UserService {
 
-    @Autowired
+    @Resource
     private UserMapper userMapper;
 
     @Resource
     private RedisRepository redisRepository;
 
     @Override
-    public Result<JsonObject> checkValidCode(String phone, String validCode) {
-        String s = redisRepository.get(UserConstant.USER_PHONE_CODE_PRE + phone);
-        if (!validCode.equals(s)) {
+    public UserEntity getUser(Integer id) {
+        UserEntity userEntity = userMapper.selectByPrimaryKey(id);
+        return userEntity;
+    }
+
+    @Override
+    public Result<JsonObject> checkValidCode(NoteDTO noteDTO) {
+        String s = redisRepository.get(UserConstant.USER_PHONE_CODE_PRE + noteDTO.getPhone());
+        if (!noteDTO.getValidCode().equals(s)) {
             return this.setResultError(HTTPStatus.VALID_CODE_ERROR ,"验证码不正确");
         }
 

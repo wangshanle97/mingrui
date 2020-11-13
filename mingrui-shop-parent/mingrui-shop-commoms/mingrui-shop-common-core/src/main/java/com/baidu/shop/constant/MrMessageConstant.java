@@ -35,4 +35,8 @@ public class MrMessageConstant {
     public static final String QUEUE_DLX = "queue.dlx";
     public static final String ROUTING_KEY = "mrkey";
 
+    public static final String STOCK_QUEUE_UPDATE = "stock_queue_update";
+    public static final String STOCK_EXCHANGE_UPDATE = "stock_exchange_update";
+    public static final String STOCK_ROUT_KEY_UPDATE = "stock_rout_key_update";
+
 }

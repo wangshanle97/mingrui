@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  **/
 @RestController
 @Slf4j
-public class ShopElasticsearchServiceImpl extends BaseApiService implements ShopElasticsearchService {
+public class  ShopElasticsearchServiceImpl extends BaseApiService implements ShopElasticsearchService {
 
     @Autowired
     private GoodsFeign goodsFeign;

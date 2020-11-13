@@ -7,6 +7,7 @@ import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
 import com.baidu.shop.dto.SkuDTO;
 import com.baidu.shop.dto.SpuDTO;
+import com.baidu.shop.dto.StockDTO;
 import com.baidu.shop.entity.*;
 import com.baidu.shop.business.GoodsService;
 import com.baidu.shop.utils.BaiduBeanUtil;
@@ -62,6 +63,13 @@ public class GoodsServiceImpl extends BaseApiService implements GoodsService {
 
     @Resource
     private StockMapper stockMapper;
+
+    @Override
+    public Result<JsonObject> updateStock(StockDTO stockDTO) {
+
+        stockMapper.updateStockList(stockDTO.getSkuId(),stockDTO.getStock());
+        return this.setResultSuccess();
+    }
 
     @Override
     public Result<SkuEntity> getSkuBySkuId(Long skuId) {
@@ -140,7 +148,8 @@ public class GoodsServiceImpl extends BaseApiService implements GoodsService {
     @Override
     public Result<JsonObject> saveSpu(SpuDTO spuDTO) {
 
-        Integer info = addInfo(spuDTO);
+        Integer info = this.addInfo(spuDTO);
+
 
 //        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter(){
 //            @Override
@@ -198,6 +207,7 @@ public class GoodsServiceImpl extends BaseApiService implements GoodsService {
         List<SkuDTO> skuDTOList = skuMapper.selectSkuAndStockBySpuId(spuid);
         return this.setResultSuccess(skuDTOList);
     }
+
 
     //修改商品信息
     //Transactional

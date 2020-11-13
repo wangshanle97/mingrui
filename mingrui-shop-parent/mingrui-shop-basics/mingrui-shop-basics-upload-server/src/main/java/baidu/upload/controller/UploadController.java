@@ -26,15 +26,15 @@ import java.util.UUID;
 public class UploadController extends BaseApiService {
 
     //window系统的上传目录
-//    @Value(value = "${mingrui.upload.path.windows}")
+    @Value(value = "${mingrui.upload.path.windows}")
     private String windowsPath;
 
     //linux系统的上传目录
-//    @Value(value = "${mingrui.upload.path.linux}")
+    @Value(value = "${mingrui.upload.path.linux}")
     private String linuxPath;
 
     //图片服务器的地址
-//    @Value(value = "${mingrui.upload.img.host}")
+    @Value(value = "${mingrui.upload.img.host}")
     private String imgHost;
 
     @PostMapping
